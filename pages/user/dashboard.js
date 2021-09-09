@@ -3,11 +3,13 @@ import { UserContext } from "../../context";
 import UserRoute from "../../components/routes/UserRoute";
 import PostForm from "../../components/forms/PostForm";
 import PostList from "../../components/cards/PostList";
+import CommentForm from "../../components/forms/CommentForm";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import axios from "axios";
 import { toast } from "react-toastify";
 import People from "./../../components/cards/People";
+import { Modal } from "antd";
 
 const Home = () => {
   const [state, setState] = useContext(UserContext);
@@ -16,7 +18,13 @@ const Home = () => {
   const [image, setImage] = useState({});
   const [uploading, setUploading] = useState(false);
   const [posts, setPosts] = useState([]);
+
   const [people, setPeople] = useState([]);
+
+  const [comment, setComment] = useState("");
+  const [visible, setVisible] = useState(false);
+  const [currentPost, setCurrentPost] = useState({});
+
   // route
   const router = useRouter();
 
@@ -148,6 +156,31 @@ const Home = () => {
     }
   };
 
+  const handleComment = async (post) => {
+    setCurrentPost(post);
+    setVisible(true);
+  };
+
+  const addComment = async (e) => {
+    e.preventDefault();
+    // console.log("Add comment", currentPost._id);
+    // console.log("Save comment to db", comment);
+    try {
+      const { data } = await axios.put("/add-comment", {
+        postId: currentPost._id,
+        comment,
+      });
+      console.log("add comment", data);
+      setComment("");
+      setVisible(false);
+      newsFeed();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const removeComment = async () => {};
+
   return (
     <UserRoute>
       <div className="container-fluid">
@@ -173,6 +206,7 @@ const Home = () => {
               handleDelete={handleDelete}
               handleLike={handleLike}
               handleUnlike={handleUnlike}
+              handleComment={handleComment}
             />
           </div>
 
@@ -187,6 +221,19 @@ const Home = () => {
             <People people={people} handleFollow={handleFollow} />
           </div>
         </div>
+
+        <Modal
+          visible={visible}
+          onCancel={() => setVisible(false)}
+          title="Comment"
+          footer={null}
+        >
+          <CommentForm
+            comment={comment}
+            setComment={setComment}
+            addComment={addComment}
+          />
+        </Modal>
       </div>
     </UserRoute>
   );
