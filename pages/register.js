@@ -51,10 +51,10 @@ const register = () => {
   return (
     <div className="container-fluid">
       <div className="row py-5 text-light bg-default-image">
-        <div className="col text-center">
-          <h1>Register</h1>
+          <div className="col text-center">
+            <h1 className="pt-5 font-monospace text-light display-3">Register</h1>
+          </div>
         </div>
-      </div>
 
       <div className="row py-5">
         <div className="col-md-6 offset-md-3">

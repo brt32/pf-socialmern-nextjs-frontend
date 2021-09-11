@@ -9,7 +9,13 @@ import Link from "next/link";
 import axios from "axios";
 import { toast } from "react-toastify";
 import People from "./../../components/cards/People";
-import { Modal } from "antd";
+import Search from "../../components/Search";
+import { Modal, Pagination } from "antd";
+import io from "socket.io-client";
+
+const socket = io(process.env.NEXT_PUBLIC_SOCKETIO, {
+  reconnection: true,
+});
 
 const Home = () => {
   const [state, setState] = useContext(UserContext);
@@ -24,6 +30,8 @@ const Home = () => {
   const [comment, setComment] = useState("");
   const [visible, setVisible] = useState(false);
   const [currentPost, setCurrentPost] = useState({});
+  const [totalPosts, setTotalPosts] = useState(0);
+  const [page, setPage] = useState(1);
 
   // route
   const router = useRouter();
@@ -33,20 +41,19 @@ const Home = () => {
       newsFeed();
       findPeople();
     }
-  }, [state && state.token]);
+  }, [state && state.token, page]);
 
-  const fetchUserPosts = async () => {
+  useEffect(() => {
     try {
-      const { data } = await axios.get("/user-posts");
-      // console.log(data);
-      setPosts(data);
+      axios.get("/total-posts").then(({ data }) => setTotalPosts(data));
     } catch (err) {
       console.log(err);
     }
-  };
+  }, []);
+
   const newsFeed = async () => {
     try {
-      const { data } = await axios.get("/news-feed");
+      const { data } = await axios.get(`/news-feed/${page}`);
       // console.log(data);
       setPosts(data);
     } catch (err) {
@@ -73,10 +80,12 @@ const Home = () => {
       if (data.error) {
         toast.error(data.error);
       } else {
+        setPage(1);
         newsFeed();
         toast.success("Post created");
         setContent("");
         setImage({});
+        socket.emit("new-post", data);
       }
     } catch (err) {
       console.log(err);
@@ -179,14 +188,30 @@ const Home = () => {
     }
   };
 
-  const removeComment = async () => {};
+  const removeComment = async (postId, comment) => {
+    console.log(postId, comment);
+    let answer = window.confirm("Are you sure?");
+    if (!answer) return;
+    try {
+      const { data } = await axios.put("/remove-comment", {
+        postId,
+        comment,
+      });
+      console.log("comment removed", data);
+      newsFeed();
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <UserRoute>
       <div className="container-fluid">
         <div className="row py-5 text-light bg-default-image">
           <div className="col text-center">
-            <h1>Newsfeed</h1>
+            <h1 className="pt-5 font-monospace text-light display-3">
+              Newsfeed
+            </h1>
           </div>
         </div>
 
@@ -207,12 +232,21 @@ const Home = () => {
               handleLike={handleLike}
               handleUnlike={handleUnlike}
               handleComment={handleComment}
+              removeComment={removeComment}
+            />
+            <Pagination
+              current={page}
+              total={(totalPosts / 3) * 10}
+              onChange={(value) => setPage(value)}
+              className="pb-5"
             />
           </div>
 
           {/* <pre>{JSON.stringify(posts, null, 4)}</pre> */}
 
           <div className="col-md-4">
+            <Search />
+            <br />
             {state && state.user && state.user.following && (
               <Link href={`/user/following`}>
                 <a className="h6">{state.user.following.length} Following</a>

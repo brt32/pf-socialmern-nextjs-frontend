@@ -1,7 +1,7 @@
 .bg-default-image {
   background-image: url("/images/default.jpg");
   background-size: 100%;
-  height: 140px;
+  height: 280px;
   text-shadow: 2px 2px 8p #000;
 }
 
@@ -11,9 +11,11 @@
 }
 
 .active {
-  background-color: navy;
+  background-color: #1c1919;
 }
 
 .pointer {
   cursor: pointer;
 }
+
+/* ********************************** */

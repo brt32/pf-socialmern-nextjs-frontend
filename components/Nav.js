@@ -23,7 +23,12 @@ const Nav = () => {
   return (
     <nav
       className="nav d-flex justify-content-between"
-      style={{ backgroundColor: "blue" }}
+      style={{
+        backgroundColor: "#3f3838",
+        position: "fixed",
+        width: "100%",
+        zIndex: "99",
+      }}
     >
       <Link href="/">
         <a
@@ -70,6 +75,20 @@ const Nav = () => {
                   </a>
                 </Link>
               </li>
+
+              {state.user.role === "Admin" && (
+                <li>
+                  <Link href="/admin">
+                    <a
+                      className={`nav-link dropdown-item ${
+                        current === "/admin" && "active"
+                      }`}
+                    >
+                      Admin
+                    </a>
+                  </Link>
+                </li>
+              )}
 
               <li>
                 <a onClick={logout} className="nav-link">

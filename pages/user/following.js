@@ -54,37 +54,49 @@ const Following = () => {
   };
 
   return (
-    <div className="row col-md-6 offset-md-3">
-      {/* <pre>{JSON.stringify(people, null, 4)}</pre> */}
-      <List
-        itemLayout="horizontal"
-        dataSource={people}
-        renderItem={(user) => (
-          <List.Item>
-            <List.Item.Meta
-              avatar={<Avatar src={imageSource(user)} />}
-              title={
-                <div className="d-flex justify-content-between">
-                  {user.username}{" "}
-                  <span
-                    onClick={() => handleUnfollow(user)}
-                    className="text-primary pointer"
-                  >
-                    Unfollow
-                  </span>
-                </div>
-              }
-            />
-          </List.Item>
-        )}
-      />
+    <>
+      <div className="row py-5 text-light bg-default-image">
+        <div className="col text-center">
+          <h1 className="pt-5 font-monospace text-light display-3">
+            Followings
+          </h1>
+        </div>
+      </div>
 
-      <Link href="/user/dashboard">
-        <a className="d-flex justify-content-center pt-5">
-          <RollbackOutlined />
-        </a>
-      </Link>
-    </div>
+      <div className="row col-md-6 offset-md-3 pt-5">
+        {/* <pre>{JSON.stringify(people, null, 4)}</pre> */}
+
+        <List
+          itemLayout="horizontal"
+          dataSource={people}
+          style={{ paddingTop: "15px" }}
+          renderItem={(user) => (
+            <List.Item>
+              <List.Item.Meta
+                avatar={<Avatar src={imageSource(user)} />}
+                title={
+                  <div className="d-flex justify-content-between">
+                    {user.username}{" "}
+                    <span
+                      onClick={() => handleUnfollow(user)}
+                      className="text-primary pointer"
+                    >
+                      Unfollow
+                    </span>
+                  </div>
+                }
+              />
+            </List.Item>
+          )}
+        />
+
+        <Link href="/user/dashboard">
+          <a className="d-flex justify-content-center pt-5">
+            <RollbackOutlined />
+          </a>
+        </Link>
+      </div>
+    </>
   );
 };
 

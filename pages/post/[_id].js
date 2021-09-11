@@ -5,10 +5,17 @@ import Link from "next/link";
 import UserRoute from "../../components/routes/UserRoute";
 import { toast } from "react-toastify";
 import Post from "../../components/cards/Post";
+import CommentForm from "../../components/forms/CommentForm";
+import { Modal } from "antd";
 import { RollbackOutlined } from "@ant-design/icons";
 
 const PostComments = () => {
   const [post, setPost] = useState({});
+
+  const [comment, setComment] = useState("");
+  const [visible, setVisible] = useState(false);
+  const [currentPost, setCurrentPost] = useState({});
+
   const router = useRouter();
   const _id = router.query._id;
 
@@ -25,8 +32,64 @@ const PostComments = () => {
     }
   };
 
+  const handleDelete = async (post) => {
+    try {
+      const answer = window.confirm("Are you sure?");
+      if (!answer) return;
+      const { data } = await axios.delete(`/delete-post/${post._id}`);
+      newsFeed();
+      toast.error("Post deleted");
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleUnlike = async (_id) => {
+    // console.log("like this post", _id);
+    try {
+      const { data } = await axios.put("/unlike-post", { _id });
+      // console.log("unliked", data);
+      fetchPost();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleLike = async (_id) => {
+    // console.log("like this post", _id);
+    try {
+      const { data } = await axios.put("/like-post", { _id });
+      // console.log("liked", data);
+      fetchPost();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleComment = async (post) => {
+    setCurrentPost(post);
+    setVisible(true);
+  };
+
+  const addComment = async (e) => {
+    e.preventDefault();
+    // console.log("Add comment", currentPost._id);
+    // console.log("Save comment to db", comment);
+    try {
+      const { data } = await axios.put("/add-comment", {
+        postId: currentPost._id,
+        comment,
+      });
+      console.log("add comment", data);
+      setComment("");
+      setVisible(false);
+      fetchPost();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   const removeComment = async (postId, comment) => {
-    // console.log(postId, comment);
     let answer = window.confirm("Are you sure?");
     if (!answer) return;
     try {
@@ -34,7 +97,7 @@ const PostComments = () => {
         postId,
         comment,
       });
-      console.log("comment removed", data);
+
       fetchPost();
     } catch (err) {
       console.log(err);
@@ -49,7 +112,28 @@ const PostComments = () => {
         </div>
       </div>
       <div className="container col-md-8 offset-md-2 pt-5">
-        <Post post={post} commentsCount={100} removeComment={removeComment} />
+        <Post
+          post={post}
+          commentsCount={100}
+          handleComment={handleComment}
+          addComment={addComment}
+          removeComment={removeComment}
+          handleUnlike={handleUnlike}
+          handleLike={handleLike}
+          handleDelete={handleDelete}
+        />
+        <Modal
+          visible={visible}
+          onCancel={() => setVisible(false)}
+          title="Comment"
+          footer={null}
+        >
+          <CommentForm
+            comment={comment}
+            setComment={setComment}
+            addComment={addComment}
+          />
+        </Modal>
       </div>
       <Link href="/user/dashboard">
         <a className="d-flex justify-content-center p-5">

@@ -92,7 +92,7 @@ const ProfileUpdate = () => {
     <div className="container-fluid">
       <div className="row py-5 text-light bg-default-image">
         <div className="col text-center">
-          <h1>Profile</h1>
+          <h1 className="pt-5 font-monospace text-light display-3">Profile</h1>
         </div>
       </div>
       <div className="row py-5">
